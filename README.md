@@ -1,49 +1,48 @@
 # Sabre
 
-**Sabre** is a lightweight, framework-agnostic Java database access library that eliminates boilerplate JDBC code for everyday CRUD operations while providing an unhindered raw SQL escape hatch when needed.
+Sabre is a lightweight, framework-agnostic Java database access library that eliminates boilerplate JDBC code for everyday CRUD operations while providing an unhindered raw SQL escape hatch when needed.
 
-## ✨ Key Features
+## Key Features
 
-- **Zero-Boilerplate CRUD**: Insert, read, update, and delete entities with clean, single-line method calls
-- **Fluent Query Builder**: Chain `.where()`, `.orderBy()`, `.limit()`, and `.offset()` into injection-safe parameterized queries
-- **Opt-In Reflection Mapping**: Minimal annotations (`@Table`, `@Id`, `@Column`, `@Transient`) with cached metadata for high throughput
-- **Raw SQL Escape Hatch**: Run custom queries, joins, and aggregates while retaining automatic connection pooling and object mapping
-- **Connection Pooling**: Built on HikariCP for top-tier connection management and thread safety
-- **Unchecked Exceptions**: Wraps checked `SQLException`s into `SabreException` — no repetitive try-catch blocks
-- **Framework-Agnostic & Driver-Agnostic**: Works in standalone CLIs, game servers, microservices, or full enterprise applications with any standard JDBC driver (SQLite, MySQL, PostgreSQL, MariaDB, etc.)
-- **Java 21+**: Leverages modern Java features and requires Java 21 or higher
+- Zero-Boilerplate CRUD: Insert, read, update, and delete entities with clean, single-line method calls.
+- Fluent Query Builder: Chain `.where()`, `.orderBy()`, `.limit()`, and `.offset()` into injection-safe parameterized queries.
+- Opt-In Reflection Mapping: Minimal annotations (`@Table`, `@Id`, `@Column`, `@Transient`) with cached metadata for high throughput.
+- Raw SQL Escape Hatch: Run custom queries, joins, and aggregates while retaining automatic connection pooling and object mapping.
+- Connection Pooling: Built on HikariCP for connection management and thread safety.
+- Unchecked Exceptions: Wraps checked `SQLException`s into `SabreException` to remove repetitive try-catch blocks.
+- Framework-Agnostic and Driver-Agnostic: Works in standalone CLIs, game servers, microservices, or full enterprise applications with any standard JDBC driver (SQLite, MySQL, PostgreSQL, MariaDB, etc.).
+- Java 21+: Leverages modern Java features and requires Java 21 or higher.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Add Sabre to Your Project
 
-First, install Sabre locally (or deploy to your internal repository):
+Install Sabre locally into your local Maven cache:
 
 ```bash
 mvn clean install
 ```
 
-This installs `moon.studio:Sabre:1.0` into your local `~/.m2/repository`.
+#### Maven (pom.xml)
 
-#### Maven (`pom.xml`)
+Add Sabre and your database's JDBC driver to your `pom.xml`:
+
 ```xml
 <dependencies>
-    <!-- Sabre ORM / Database Library -->
     <dependency>
         <groupId>moon.studio</groupId>
         <artifactId>Sabre</artifactId>
         <version>1.0</version>
     </dependency>
 
-    <!-- Choose your JDBC driver: -->
-    <!-- Example: SQLite -->
+    <!-- Example: SQLite Driver -->
     <dependency>
         <groupId>org.xerial</groupId>
         <artifactId>sqlite-jdbc</artifactId>
         <version>3.45.3.0</version>
     </dependency>
 
-    <!-- Example: MySQL -->
+    <!-- Example: MySQL Driver -->
     <!--
     <dependency>
         <groupId>com.mysql</groupId>
@@ -52,7 +51,7 @@ This installs `moon.studio:Sabre:1.0` into your local `~/.m2/repository`.
     </dependency>
     -->
 
-    <!-- Example: PostgreSQL -->
+    <!-- Example: PostgreSQL Driver -->
     <!--
     <dependency>
         <groupId>org.postgresql</groupId>
@@ -63,7 +62,8 @@ This installs `moon.studio:Sabre:1.0` into your local `~/.m2/repository`.
 </dependencies>
 ```
 
-#### Gradle (`build.gradle.kts`)
+#### Gradle (build.gradle.kts)
+
 ```kotlin
 dependencies {
     implementation("moon.studio:Sabre:1.0")
@@ -83,18 +83,18 @@ import moon.studio.sabre.core.Sabre;
 // SQLite (file-based or in-memory)
 Sabre db = Sabre.connect("jdbc:sqlite:app.db");
 
-// MySQL / PostgreSQL (with credentials)
+// MySQL or PostgreSQL with credentials
 Sabre db = Sabre.connect("jdbc:mysql://localhost:3306/mydb", "db_user", "db_password");
 
-// Using try-with-resources (recommended):
+// Using try-with-resources:
 try (Sabre db = Sabre.connect("jdbc:sqlite:app.db")) {
     // Database operations here
 }
 ```
 
-### 3. Define Your Entity
+### 3. Define an Entity
 
-Annotate your POJOs using Sabre annotations:
+Annotate your model classes with Sabre annotations:
 
 ```java
 import moon.studio.sabre.mapping.annotations.Table;
@@ -106,19 +106,18 @@ import moon.studio.sabre.mapping.annotations.Transient;
 public class User {
 
     @Id
-    private int id; // Auto-incremented or manually assigned
+    private int id;
 
     private String name;
 
     private int age;
 
     @Column("email_address")
-    private String email; // Maps to column 'email_address'
+    private String email;
 
     @Transient
-    private String sessionToken; // Ignored by Sabre
+    private String sessionToken;
 
-    // Constructors
     public User() {}
 
     public User(String name, int age, String email) {
@@ -127,7 +126,6 @@ public class User {
         this.email = email;
     }
 
-    // Getters and setters...
     public int getId() { return id; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -138,33 +136,43 @@ public class User {
 }
 ```
 
-## 📖 Complete Usage Guide
+## Usage Guide
 
 ### CRUD Operations
 
-#### Create (`save`)
+#### Create (save)
+
+When `@Id` is an integer/long with default value `0`, Sabre inserts the record and writes the generated key back to the instance:
+
 ```java
 User user = new User("Alice", 25, "alice@example.com");
 db.save(user);
 
-System.out.println("Generated ID: " + user.getId()); // e.g. 1
+System.out.println("Generated ID: " + user.getId());
 ```
 
-#### Read by ID (`findById`)
+If an explicit ID (such as a String or UUID) is already populated, Sabre includes the ID column in the `INSERT` statement directly.
+
+#### Read by ID (findById)
+
 ```java
 User user = db.findById(User.class, 1);
 if (user != null) {
-    System.out.println("Found user: " + user.getName());
+    System.out.println("Found: " + user.getName());
 }
 ```
 
-#### Read All (`findAll`)
+#### Read All (findAll)
+
 ```java
 List<User> users = db.findAll(User.class);
 users.forEach(u -> System.out.println(u.getName()));
 ```
 
-#### Update (`update`)
+#### Update (update)
+
+Updates all non-ID columns for the row matching `@Id`:
+
 ```java
 User user = db.findById(User.class, 1);
 user.setName("Alice Cooper");
@@ -173,16 +181,18 @@ user.setAge(26);
 db.update(user);
 ```
 
-#### Delete (`delete`)
+#### Delete (delete)
+
 ```java
 db.delete(User.class, 1);
 ```
 
 ### Fluent Query Builder
 
-Build dynamic, parameterized queries without writing string SQL:
+Build parameterized, SQL-injection safe queries fluently:
 
-#### Basic Filters & Sorting
+#### Filtering and Ordering
+
 ```java
 List<User> adults = db.query(User.class)
     .where("age", ">", 18)
@@ -190,15 +200,16 @@ List<User> adults = db.query(User.class)
     .list();
 ```
 
-#### Equality Shortcut
+#### Equality Filter
+
 ```java
-// Equivalent to .where("name", "=", "Alice")
 User alice = db.query(User.class)
     .where("name", "Alice")
     .first();
 ```
 
 #### Multiple Conditions (AND)
+
 ```java
 List<User> activeUsers = db.query(User.class)
     .where("age", ">=", 21)
@@ -207,16 +218,18 @@ List<User> activeUsers = db.query(User.class)
     .list();
 ```
 
-#### Pagination (`limit` & `offset`)
+#### Pagination (limit and offset)
+
 ```java
-List<User> pageOne = db.query(User.class)
+List<User> page = db.query(User.class)
     .orderBy("id", "ASC")
     .limit(10)
-    .offset(0)
+    .offset(20)
     .list();
 ```
 
-#### Counting
+#### Counting Rows
+
 ```java
 long totalAdults = db.query(User.class)
     .where("age", ">=", 18)
@@ -225,19 +238,23 @@ long totalAdults = db.query(User.class)
 
 ### Raw SQL Escape Hatch
 
-When you need complex joins, aggregates, or database-specific syntax:
+#### Typed Query (raw)
 
-#### Querying with Result Mapping (`raw`)
+Executes custom SQL (including joins and aggregates) and maps rows directly to entity instances:
+
 ```java
 List<User> users = db.raw(User.class,
-    "SELECT * FROM users WHERE age >= ? AND email_address IS NOT NULL", 
+    "SELECT * FROM users WHERE age >= ? AND email_address IS NOT NULL",
     21
 );
 ```
 
-#### Executing DDL / Updates (`execute`)
+#### DDL and Updates (execute)
+
+Executes statements that do not return rows and returns the number of affected rows:
+
 ```java
-// Create schema
+// Create schema table
 db.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -247,62 +264,46 @@ db.execute("""
     )
 """);
 
-// Bulk update with parameters
-int affected = db.execute(
-    "UPDATE users SET age = age + 1 WHERE age < ?", 
-    18
-);
+// Execute batch updates
+int updatedCount = db.execute("UPDATE users SET age = age + 1 WHERE age < ?", 18);
 ```
 
 ### Exception Handling
 
-Sabre converts all low-level `java.sql.SQLException`s into `SabreException` (an unchecked runtime exception):
+Sabre wraps checked `java.sql.SQLException`s into `SabreException` (an unchecked runtime exception):
 
 ```java
 try {
     db.save(user);
 } catch (SabreException e) {
     System.err.println("Database operation failed: " + e.getMessage());
-    Throwable cause = e.getCause(); // Original SQLException if needed
+    Throwable cause = e.getCause(); // Original SQLException
 }
 ```
 
-Or use try-with-resources for automatic cleanup:
+## Advanced Configuration
 
-```java
-try (Sabre db = Sabre.connect("jdbc:sqlite:app.db")) {
-    // All database operations here
-} // db.close() called automatically
-```
+### Connection Pool Access
 
-## 🔧 Advanced Configuration
-
-### Connection Pool Tuning
-
-Sabre uses HikariCP under the hood. For advanced connection pool configuration, you can access the underlying `HikariDataSource`:
+Sabre uses HikariCP internally. You can access the pool directly via `getConnectionManager()`:
 
 ```java
 import com.zaxxer.hikari.HikariDataSource;
 import moon.studio.sabre.core.ConnectionManager;
 
-// Get the connection manager from Sabre instance
-ConnectionManager cm = db.getConnectionManager(); // Add this getter if needed
-HikariDataSource ds = cm.getDataSource();
+ConnectionManager cm = db.getConnectionManager();
+HikariDataSource ds = (HikariDataSource) cm.getDataSource();
 
-// Configure pool properties
 ds.setMaximumPoolSize(20);
 ds.setMinimumIdle(5);
-ds.setConnectionTimeout(30000);
-ds.setIdleTimeout(600000);
-ds.setMaxLifetime(1800000);
 ```
 
-## 📋 Supported Java Types
+## Supported Java Types
 
-Sabre handles bidirectional mapping between standard Java types and SQL data types:
+Sabre handles bidirectional mapping between Java types and standard SQL column types:
 
 | Java Type | SQL Type |
-|-----------|----------|
+| --- | --- |
 | `int` / `Integer` | `INTEGER` / `INT` |
 | `long` / `Long` | `BIGINT` |
 | `double` / `Double` | `DOUBLE` / `FLOAT` |
@@ -320,60 +321,29 @@ Sabre handles bidirectional mapping between standard Java types and SQL data typ
 | `java.sql.Timestamp` | `TIMESTAMP` |
 | `java.util.Date` | `TIMESTAMP` |
 
-## 🧪 Running Tests
+## Building and Testing
+
+### Run Tests
 
 ```bash
 mvn test
 ```
 
-The integration tests use an in-memory SQLite database and cover:
-- CRUD operations
-- Query builder functionality
-- Raw SQL execution
-- Annotation handling (@Column, @Transient)
-- Transaction safety
-
-## 📦 Building the JAR
+### Package JAR
 
 ```bash
 mvn clean package
 ```
 
-The JAR will be available in `target/Sabre-1.0.jar`.
+The resulting library JAR will be generated at `target/Sabre-1.0.jar`.
 
-## 📄 License
+## Best Practices
 
-Sabre is developed by **Moon Studio** and is available under the MIT License.
+1. Use try-with-resources or call `db.close()` when shutting down your application.
+2. Ensure entity classes have a no-argument constructor (public, package-private, or private).
+3. Use `@Transient` on fields that should not be mapped to database columns.
+4. Use the query builder or parameter bindings in `raw()` to prevent SQL injection.
 
-## 💡 Best Practices
+## License
 
-1. **Use try-with-resources** for automatic connection cleanup
-2. **Keep entities simple** - POJOs with getters/setters work best
-3. **Use @Transient** for fields that shouldn't be persisted
-4. **Leverage the query builder** for type-safe, injection-free queries
-5. **Use raw SQL** only when necessary for complex operations
-6. **Close connections** explicitly if not using try-with-resources
-7. **Match Java types** to appropriate SQL types for optimal performance
-
-## ❓ Troubleshooting
-
-- **"No suitable driver"**: Ensure you've included the correct JDBC driver dependency
-- **"Table doesn't exist"**: Verify your `@Table` annotation matches the actual table name
-- **"Column not found"**: Check your `@Column` annotations or ensure field names match column names
-- **Connection leaks**: Always close Sabre instances or use try-with-resources
-- **Performance issues**: Ensure you're using Java 21+ and consider connection pool tuning
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-*Sabre makes database access simple without sacrificing power. Get back to writing your application logic, not JDBC boilerplate.*#   S a b r e  
- 
+Sabre is developed by Moon Studio under the MIT License.
