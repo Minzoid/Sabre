@@ -25,12 +25,19 @@ mvn clean install
 
 #### Maven (pom.xml)
 
-Add Sabre and your database's JDBC driver to your `pom.xml`:
+Add the GitHub Packages repository and dependency to your `pom.xml`:
 
 ```xml
+<repositories>
+    <repository>
+        <id>github</id>
+        <url>https://maven.pkg.github.com/minzoid/sabre</url>
+    </repository>
+</repositories>
+
 <dependencies>
     <dependency>
-        <groupId>moon.studio</groupId>
+        <groupId>io.github.minzoid</groupId>
         <artifactId>sabre</artifactId>
         <version>1.0</version>
     </dependency>
@@ -65,8 +72,15 @@ Add Sabre and your database's JDBC driver to your `pom.xml`:
 #### Gradle (build.gradle.kts)
 
 ```kotlin
+repositories {
+    mavenCentral()
+    maven {
+        url = uri("https://maven.pkg.github.com/minzoid/sabre")
+    }
+}
+
 dependencies {
-    implementation("moon.studio:sabre:1.0")
+    implementation("io.github.minzoid:sabre:1.0")
 
     // Choose your JDBC driver:
     implementation("org.xerial:sqlite-jdbc:3.45.3.0")
