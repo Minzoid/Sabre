@@ -3,7 +3,6 @@ package moon.studio.sabre.core;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -35,8 +34,12 @@ public class ConnectionManager {
         }
     }
 
-    public DataSource getDataSource() {
+    public HikariDataSource getDataSource() {
         return dataSource;
+    }
+
+    public boolean isClosed() {
+        return dataSource == null || dataSource.isClosed();
     }
 
     public void close() {

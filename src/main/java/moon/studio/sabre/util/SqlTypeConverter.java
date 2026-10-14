@@ -9,6 +9,7 @@ import java.sql.Types;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 public final class SqlTypeConverter {
 
@@ -79,21 +80,86 @@ public final class SqlTypeConverter {
         } else if (fieldType == BigDecimal.class) {
             return rs.getBigDecimal(columnName);
         } else if (fieldType == Timestamp.class) {
-            return rs.getTimestamp(columnName);
+            if (raw instanceof Timestamp ts) return ts;
+            if (raw instanceof Number n) return new Timestamp(n.longValue());
+            String str = raw.toString().trim();
+            if (str.matches("^\\d+$")) return new Timestamp(Long.parseLong(str));
+            try {
+                return rs.getTimestamp(columnName);
+            } catch (SQLException ignored) {
+                return Timestamp.valueOf(str);
+            }
         } else if (fieldType == java.sql.Date.class) {
-            return rs.getDate(columnName);
+            if (raw instanceof java.sql.Date d) return d;
+            if (raw instanceof Number n) return new java.sql.Date(n.longValue());
+            String str = raw.toString().trim();
+            if (str.matches("^\\d+$")) return new java.sql.Date(Long.parseLong(str));
+            try {
+                return rs.getDate(columnName);
+            } catch (SQLException ignored) {
+                return java.sql.Date.valueOf(str);
+            }
         } else if (fieldType == java.util.Date.class) {
-            Timestamp ts = rs.getTimestamp(columnName);
-            return ts != null ? new java.util.Date(ts.getTime()) : null;
+            if (raw instanceof java.util.Date d) return d;
+            if (raw instanceof Number n) return new java.util.Date(n.longValue());
+            String str = raw.toString().trim();
+            if (str.matches("^\\d+$")) return new java.util.Date(Long.parseLong(str));
+            try {
+                Timestamp ts = rs.getTimestamp(columnName);
+                return ts != null ? new java.util.Date(ts.getTime()) : null;
+            } catch (SQLException ignored) {
+                return null;
+            }
         } else if (fieldType == LocalDateTime.class) {
-            Timestamp ts = rs.getTimestamp(columnName);
-            return ts != null ? ts.toLocalDateTime() : null;
+            if (raw instanceof LocalDateTime ldt) return ldt;
+            if (raw instanceof Timestamp ts) return ts.toLocalDateTime();
+            if (raw instanceof Number n) {
+                return Instant.ofEpochMilli(n.longValue()).atZone(ZoneId.systemDefault()).toLocalDateTime();
+            }
+            String str = raw.toString().trim();
+            if (str.matches("^\\d+$")) {
+                return Instant.ofEpochMilli(Long.parseLong(str)).atZone(ZoneId.systemDefault()).toLocalDateTime();
+            }
+            try {
+                return Timestamp.valueOf(str).toLocalDateTime();
+            } catch (IllegalArgumentException e) {
+                if (str.contains(" ")) {
+                    str = str.replace(" ", "T");
+                }
+                return LocalDateTime.parse(str);
+            }
         } else if (fieldType == LocalDate.class) {
-            java.sql.Date d = rs.getDate(columnName);
-            return d != null ? d.toLocalDate() : null;
+            if (raw instanceof LocalDate ld) return ld;
+            if (raw instanceof java.sql.Date d) return d.toLocalDate();
+            if (raw instanceof Timestamp ts) return ts.toLocalDateTime().toLocalDate();
+            if (raw instanceof Number n) {
+                return Instant.ofEpochMilli(n.longValue()).atZone(ZoneId.systemDefault()).toLocalDate();
+            }
+            String str = raw.toString().trim();
+            if (str.matches("^\\d+$")) {
+                return Instant.ofEpochMilli(Long.parseLong(str)).atZone(ZoneId.systemDefault()).toLocalDate();
+            }
+            if (str.contains("T")) {
+                str = str.split("T")[0];
+            } else if (str.contains(" ")) {
+                str = str.split(" ")[0];
+            }
+            return LocalDate.parse(str);
         } else if (fieldType == Instant.class) {
-            Timestamp ts = rs.getTimestamp(columnName);
-            return ts != null ? ts.toInstant() : null;
+            if (raw instanceof Instant inst) return inst;
+            if (raw instanceof Timestamp ts) return ts.toInstant();
+            if (raw instanceof Number n) {
+                return Instant.ofEpochMilli(n.longValue());
+            }
+            String str = raw.toString().trim();
+            if (str.matches("^\\d+$")) {
+                return Instant.ofEpochMilli(Long.parseLong(str));
+            }
+            try {
+                return Timestamp.valueOf(str).toInstant();
+            } catch (IllegalArgumentException e) {
+                return Instant.parse(str);
+            }
         } else if (fieldType == byte[].class) {
             return rs.getBytes(columnName);
         } else {

@@ -409,6 +409,7 @@ class SabreIntegrationTest {
             testDb.execute("CREATE TABLE t (x INT)");
             testDb.execute("INSERT INTO t VALUES (42)");
         }
+        assertTrue(testDb.isClosed());
         assertTrue(testDb.getConnectionManager().getDataSource().isClosed());
     }
 }

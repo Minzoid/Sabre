@@ -89,6 +89,10 @@ public class Sabre implements AutoCloseable {
         return connectionManager;
     }
 
+    public boolean isClosed() {
+        return connectionManager.isClosed();
+    }
+
     @Override
     public void close() {
         connectionManager.close();
