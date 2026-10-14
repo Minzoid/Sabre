@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>moon.studio</groupId>
-    <artifactId>Sabre</artifactId>
+    <artifactId>sabre</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
-    <name>Sabre</name>
+    <name>sabre</name>
     <description>
         Lightweight, framework-agnostic Java database access library.
         Removes JDBC boilerplate for everyday CRUD while always allowing raw SQL.
@@ -24,6 +24,14 @@
         <sqlite.version>3.45.3.0</sqlite.version>
         <slf4j.version>2.0.12</slf4j.version>
     </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/minzoid/sabre</url>
+        </repository>
+    </distributionManagement>
 
     <dependencies>
         <dependency>

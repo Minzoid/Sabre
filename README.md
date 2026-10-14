@@ -31,7 +31,7 @@ Add Sabre and your database's JDBC driver to your `pom.xml`:
 <dependencies>
     <dependency>
         <groupId>moon.studio</groupId>
-        <artifactId>Sabre</artifactId>
+        <artifactId>sabre</artifactId>
         <version>1.0</version>
     </dependency>
 
@@ -66,7 +66,7 @@ Add Sabre and your database's JDBC driver to your `pom.xml`:
 
 ```kotlin
 dependencies {
-    implementation("moon.studio:Sabre:1.0")
+    implementation("moon.studio:sabre:1.0")
 
     // Choose your JDBC driver:
     implementation("org.xerial:sqlite-jdbc:3.45.3.0")
