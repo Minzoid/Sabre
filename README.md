@@ -25,20 +25,20 @@ mvn clean install
 
 #### Maven (pom.xml)
 
-Add the GitHub Packages repository and dependency to your `pom.xml`:
+Add the JitPack repository and dependency to your `pom.xml`:
 
 ```xml
 <repositories>
     <repository>
-        <id>github</id>
-        <url>https://maven.pkg.github.com/minzoid/sabre</url>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
     </repository>
 </repositories>
 
 <dependencies>
     <dependency>
-        <groupId>io.github.minzoid</groupId>
-        <artifactId>sabre</artifactId>
+        <groupId>com.github.Minzoid</groupId>
+        <artifactId>Sabre</artifactId>
         <version>1.0</version>
     </dependency>
 
@@ -74,13 +74,11 @@ Add the GitHub Packages repository and dependency to your `pom.xml`:
 ```kotlin
 repositories {
     mavenCentral()
-    maven {
-        url = uri("https://maven.pkg.github.com/minzoid/sabre")
-    }
+    maven("https://jitpack.io")
 }
 
 dependencies {
-    implementation("io.github.minzoid:sabre:1.0")
+    implementation("com.github.Minzoid:Sabre:1.0")
 
     // Choose your JDBC driver:
     implementation("org.xerial:sqlite-jdbc:3.45.3.0")

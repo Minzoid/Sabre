@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.github.minzoid</groupId>
-    <artifactId>sabre</artifactId>
+    <groupId>com.github.Minzoid</groupId>
+    <artifactId>Sabre</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
-    <name>sabre</name>
+    <name>Sabre</name>
     <description>
         Lightweight, framework-agnostic Java database access library.
         Removes JDBC boilerplate for everyday CRUD while always allowing raw SQL.
@@ -24,14 +24,6 @@
         <sqlite.version>3.45.3.0</sqlite.version>
         <slf4j.version>2.0.12</slf4j.version>
     </properties>
-
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/minzoid/sabre</url>
-        </repository>
-    </distributionManagement>
 
     <dependencies>
         <dependency>
