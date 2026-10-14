@@ -1,5 +1,7 @@
 # Sabre
 
+[![](https://jitpack.io/v/Minzoid/Sabre.svg)](https://jitpack.io/#Minzoid/Sabre)
+
 Sabre is a lightweight, framework-agnostic Java database access library that eliminates boilerplate JDBC code for everyday CRUD operations while providing an unhindered raw SQL escape hatch when needed.
 
 ## Key Features
