@@ -132,8 +132,6 @@ public class User {
     @Transient
     private String sessionToken;
 
-    public User() {}
-
     public User(String name, int age, String email) {
         this.name = name;
         this.age = age;
